@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.annada.android.sample.jsonposts.vm.PostWithUserViewModel" />
+
+        <variable
+            name="clickListener"
+            type="com.ags.annada.postslist.ui.PostListener" />
+    </data>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="8dp"
+            android:onClick="@{() -> clickListener.onClick(viewModel.id)}">
+
+            <TextView
+                style="@style/defaultTextView"
+                android:id="@+id/tv_user_initials"
+                android:textSize="38sp"
+                tools:text="JD"
+                app:initials="@{viewModel.name}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                style="@style/defaultTextView"
+                android:id="@+id/tv_user_name"
+                android:textSize="18sp"
+                android:layout_marginStart="16dp"
+                android:text="@{viewModel.name}"
+                tools:text="John Doe"
+                app:layout_constraintStart_toEndOf="@+id/tv_user_initials"
+                app:layout_constraintTop_toTopOf="@+id/tv_user_initials"
+                android:layout_marginLeft="16dp" />
+
+            <TextView
+                style="@style/defaultTextView"
+                android:id="@+id/tv_user_username"
+                android:textSize="12sp"
+                android:text="@{viewModel.username}"
+                tools:text="johndoe"
+                app:layout_constraintTop_toBottomOf="@+id/tv_user_name"
+                app:layout_constraintStart_toStartOf="@+id/tv_user_name"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_user_initials"/>
+
+            <TextView
+                style="@style/defaultTextView"
+                android:id="@+id/tv_post_title"
+                android:layout_marginTop="@dimen/post_title_margin_top"
+                android:textSize="@dimen/post_title_font_size"
+                android:maxLines="1"
+                android:text="@{viewModel.title}"
+                tools:text="Lorem ipsum dolor sit amet"
+                app:layout_constraintTop_toBottomOf="@+id/tv_user_username"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                style="@style/defaultTextView"
+                android:id="@+id/tv_post_body"
+                android:layout_marginTop="@dimen/post_body_margin_top"
+                android:textSize="@dimen/post_body_font_size"
+                android:maxLines="6"
+                android:text="@{viewModel.body}"
+                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec malesuada tincidunt mauris, vel consectetur leo rhoncus eu. Morbi pulvinar, risus et aliquet pharetra, mi libero tristique nunc, sed dapibus tortor justo eget tortor. Maecenas posuere aliquet leo, eu convallis augue luctus sodales."
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_post_title"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
