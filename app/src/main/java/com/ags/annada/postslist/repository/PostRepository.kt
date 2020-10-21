@@ -1,28 +1,29 @@
 package com.example.gabriel.jsonplaceholder.data
 
 import com.ags.annada.postslist.api.ApiService
-import com.ags.annada.postslist.repository.BaseRepository
-import com.ags.annada.postslist.room.daos.PostDao
-import com.ags.annada.postslist.room.daos.UserDao
+import com.ags.annada.postslist.room.PostDatabase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class PostRepository (val postDao: PostDao, val userDao: UserDao): BaseRepository() {
-    @Inject
-    lateinit var api: ApiService
-
-    val allPostsWithUsers = postDao.fetchAllPostsAndUsers()
+@Singleton
+class PostRepository @Inject constructor(
+    private val database: PostDatabase,
+    private val apiService: ApiService,
+    private val ioDispatcher: CoroutineDispatcher
+) {
+    val allPostsWithUsers = database.postDao().fetchAllPostsAndUsers()
 
     fun fetchAllPostsAndUsers() {
-        CoroutineScope(Dispatchers.IO).launch{
+        CoroutineScope(ioDispatcher).launch {
             if (allPostsWithUsers.value.isNullOrEmpty()) {
-                val posts = api.getPosts()
-                postDao.insertAll(post = *posts.toTypedArray())
+                val posts = apiService.getPosts()
+                database.postDao().insertAll(post = *posts.toTypedArray())
 
-                val users = api.getUsers()
-                userDao.insertAll(user = *users.toTypedArray())
+                val users = apiService.getUsers()
+                database.userDao().insertAll(user = *users.toTypedArray())
             }
         }
     }

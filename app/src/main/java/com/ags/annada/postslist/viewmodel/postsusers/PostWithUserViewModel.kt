@@ -1,9 +1,10 @@
-package com.annada.android.sample.jsonposts.vm
+package com.ags.annada.postslist.viewmodel.postsusers
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.ags.annada.postslist.room.entities.PostWithUser
 
-class PostWithUserViewModel : BaseViewModel() {
+class PostWithUserViewModel : ViewModel() {
     val id = MutableLiveData<Int>()
     val name = MutableLiveData<String>()
     val username = MutableLiveData<String>()

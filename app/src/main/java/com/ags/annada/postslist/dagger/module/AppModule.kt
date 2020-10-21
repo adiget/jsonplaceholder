@@ -1,20 +1,30 @@
-package com.example.gabriel.jsonplaceholder.di.module
+package com.ags.annada.postslist.dagger.module
 
-import android.app.Application
+import android.content.Context
 import androidx.room.Room
-import com.annada.android.sample.jsonposts.room.PostDatabase
+import com.ags.annada.postslist.room.PostDatabase
 import dagger.Module
 import dagger.Provides
-import org.jetbrains.annotations.Nullable
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
 @Module
-class AppModule(val app: Application) {
-    @Provides
+@InstallIn(ApplicationComponent::class)
+object AppModule {
     @Singleton
-    fun provideApplication(): Application = app
+    @Provides
+    fun provideDatabase(@ApplicationContext context: Context): PostDatabase {
+        return Room.databaseBuilder(
+            context.applicationContext,
+            PostDatabase::class.java,
+            "Posts.db"
+        ).build()
+    }
 
-    @Provides
     @Singleton
-    fun provideDatabase(app: Application): PostDatabase? = PostDatabase.getInstance(app)
+    @Provides
+    fun provideIoDispatcher() = Dispatchers.IO
 }

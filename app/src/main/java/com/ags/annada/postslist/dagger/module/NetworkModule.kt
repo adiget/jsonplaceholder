@@ -4,50 +4,41 @@ import com.ags.annada.postslist.api.ApiService
 import com.ags.annada.postslist.api.Contracts.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
-import io.reactivex.schedulers.Schedulers
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
-/**
- * Module which provides all required dependencies about network
- */
 @Module
-// Safe here as we are dealing with a Dagger 2 module
-@Suppress("unused")
+@InstallIn(ApplicationComponent::class)
 object NetworkModule {
-    /**
-     * Provides the API service implementation.
-     * @param retrofit the Retrofit object used to instantiate the service
-     * @return the API service implementation.
-     */
+    @Singleton
     @Provides
-    @Reusable
-    @JvmStatic
-    internal fun providePostApi(retrofit: Retrofit): ApiService {
-        return retrofit.create(ApiService::class.java)
-    }
-
-    /**
-     * Provides the Retrofit object.
-     * @return the Retrofit object
-     */
-    @Provides
-    @Reusable
-    @JvmStatic
-    internal fun provideRetrofitInterface(): Retrofit {
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.apply { interceptor.level = HttpLoggingInterceptor.Level.BODY }
-        val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
-
+    internal fun providesRetrofitClient(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(providesOkHttpClient())
             .build()
+    }
+
+    @Singleton
+    @Provides
+    internal fun providesOkHttpClient(): OkHttpClient {
+        val okHttpClientBuilder = OkHttpClient.Builder()
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        okHttpClientBuilder.addInterceptor(loggingInterceptor)
+        return okHttpClientBuilder.build()
+    }
+
+    @Singleton
+    @Provides
+    internal fun providesPostsService(retrofit: Retrofit): ApiService {
+        return retrofit.create(ApiService::class.java)
     }
 }

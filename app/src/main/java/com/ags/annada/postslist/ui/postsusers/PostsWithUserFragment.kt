@@ -1,4 +1,4 @@
-package com.ags.annada.postslist.ui
+package com.ags.annada.postslist.ui.postsusers
 
 import android.os.Bundle
 import android.util.Log
@@ -6,32 +6,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.ags.annada.postslist.R
 import com.ags.annada.postslist.databinding.PostsUsersFragmentBinding
-import com.annada.android.sample.jsonposts.vm.PostsWithUsersListViewModel
-import com.annada.android.sample.jsonposts.vm.ViewModelFactory
+import com.ags.annada.postslist.utils.EventObserver
+import com.ags.annada.postslist.viewmodel.postsusers.PostsWithUsersListViewModel
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PostsWithUserFragment : Fragment() {
 
     companion object {
         fun newInstance() = PostsWithUserFragment()
     }
 
+    private val viewModel by viewModels<PostsWithUsersListViewModel>()
+    private lateinit var adapter: PostsWithUserListAdapter
+
     internal lateinit var callback: OnPostSelectedListener
-    private lateinit var viewModel: PostsWithUsersListViewModel
+
     private lateinit var binding: PostsUsersFragmentBinding
     private var errorSnackbar: Snackbar? = null
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var layoutManager: LinearLayoutManager
 
     fun setOnPostSelectedListener(callback: OnPostSelectedListener) {
         this.callback = callback
@@ -42,44 +40,28 @@ class PostsWithUserFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
+        binding = PostsUsersFragmentBinding.inflate(inflater, container, false).apply {
+            viewmodel = viewModel
+        }
+
         setHasOptionsMenu(true)
+        return binding.root
+    }
 
-        viewModel = ViewModelProviders.of(this, ViewModelFactory(activity as AppCompatActivity))
-            .get(PostsWithUsersListViewModel::class.java)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
-        viewModel.errorMessage.observe(this, Observer { errorMessage ->
+        // Set the lifecycle owner to the lifecycle of the view
+        binding.lifecycleOwner = this.viewLifecycleOwner
+
+        viewModel.errorMessage.observe(viewLifecycleOwner, Observer { errorMessage ->
             if (errorMessage != null) showError(errorMessage) else hideError()
         })
 
-        viewModel.selectItemEvent.observe(this, Observer {
-            if (it != null) {
-                Log.d("SELECTED ID", "selected=${it}");
-                callback.onPostSelected(it)
-            }
-        })
-
-        binding = DataBindingUtil.inflate(inflater, R.layout.posts_users_fragment, container, false)
-
-        val linearLayoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-
-        recyclerView = binding.postsList
-
-        recyclerView.layoutManager = linearLayoutManager
-
-        val dividerItemDecoration =
-            DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation)
-        recyclerView.addItemDecoration(dividerItemDecoration)
-        layoutManager = (recyclerView.layoutManager as LinearLayoutManager?)!!
-
-        binding.viewModel = viewModel
-
-        viewModel.allPostsWithUsers.observe(this, Observer { postsWithUsers ->
-            // Update the cached copy of the posts in the adapter.
-            postsWithUsers?.let { viewModel.postWithUsersListAdapter.setPostsWithUsers(it) }
-        })
 
 
-        return binding.root
+        setupNavigation()
+        setupAdapter()
     }
 
     private fun showError(@StringRes errorMessage: Int) {
@@ -90,6 +72,24 @@ class PostsWithUserFragment : Fragment() {
 
     private fun hideError() {
         errorSnackbar?.dismiss()
+    }
+
+    private fun setupAdapter() {
+        val viewModel = binding.viewmodel
+
+        if (viewModel != null) {
+            adapter = PostsWithUserListAdapter(viewModel)
+            binding.postsList.adapter = adapter
+        } else {
+            Log.d("setupAdapter()", "ViewModel not initialized when attempting to set up adapter.")
+        }
+    }
+
+    private fun setupNavigation() {
+        viewModel.selectItemEvent.observe(viewLifecycleOwner, EventObserver {
+            Log.d("SELECTED ID", "selected=${it}");
+            callback.onPostSelected(it)
+        })
     }
 
     interface OnPostSelectedListener {

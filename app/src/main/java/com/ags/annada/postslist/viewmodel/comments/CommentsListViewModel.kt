@@ -1,32 +1,31 @@
 package com.ags.annada.postslist.viewmodel.comments
 
 import android.view.View
+import androidx.hilt.Assisted
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations.map
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import com.ags.annada.postslist.R
-import com.ags.annada.postslist.api.ApiService
 import com.ags.annada.postslist.repository.CommentRepository
-import com.ags.annada.postslist.room.daos.CommentDao
 import com.ags.annada.postslist.room.entities.Comment
-import com.ags.annada.postslist.room.entities.Post
-import com.ags.annada.postslist.ui.comments.CommentsListAdapter
-import com.annada.android.sample.jsonposts.vm.BaseViewModel
-import com.example.gabriel.jsonplaceholder.data.PostRepository
-import io.reactivex.disposables.Disposable
+import com.ags.annada.postslist.ui.comments.CommentsFragment.Companion.ARG_POST_ID
 import kotlinx.coroutines.*
-import javax.inject.Inject
 
-class CommentsListViewModel(private val commentDao: CommentDao, postId: Int) : BaseViewModel() {
-    val commentsListAdapter: CommentsListAdapter = CommentsListAdapter()
+class CommentsListViewModel @ViewModelInject constructor(
+    private val repository: CommentRepository,
+    @Assisted private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     val loadingVisibility: MutableLiveData<Int> = MutableLiveData()
     val errorMessage: MutableLiveData<Int> = MutableLiveData()
     val errorClickListener = View.OnClickListener { loadComments() }
 
-    var repository: CommentRepository = CommentRepository(commentDao)
-    val allComments: LiveData<List<Comment>> = repository.getCommentWithId(postId)
+    val allComments: LiveData<List<Comment>> =
+        repository.getCommentWithId(savedStateHandle.get<Int>(ARG_POST_ID) ?: 0)
     private val viewModelJob = Job()
+
 
     private val errorHandler = CoroutineExceptionHandler { _, error ->
         onRetrieveCommentsFinish()

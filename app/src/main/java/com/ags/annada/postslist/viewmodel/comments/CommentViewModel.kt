@@ -1,10 +1,10 @@
 package com.ags.annada.postslist.viewmodel.comments
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.ags.annada.postslist.room.entities.Comment
-import com.annada.android.sample.jsonposts.vm.BaseViewModel
 
-class CommentViewModel : BaseViewModel() {
+class CommentViewModel : ViewModel() {
     val name = MutableLiveData<String>()
     val email = MutableLiveData<String>()
     val body = MutableLiveData<String>()

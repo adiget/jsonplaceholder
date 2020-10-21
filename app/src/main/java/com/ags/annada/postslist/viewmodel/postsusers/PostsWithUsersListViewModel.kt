@@ -1,36 +1,30 @@
-package com.annada.android.sample.jsonposts.vm
+package com.ags.annada.postslist.viewmodel.postsusers
 
 import android.view.View
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.ags.annada.postslist.R
-import com.ags.annada.postslist.api.ApiService
-import com.ags.annada.postslist.room.daos.PostDao
-import com.ags.annada.postslist.room.daos.UserDao
-import com.ags.annada.postslist.room.entities.Post
 import com.ags.annada.postslist.room.entities.PostWithUser
-import com.ags.annada.postslist.room.entities.User
-import com.ags.annada.postslist.ui.PostListener
-import com.ags.annada.postslist.ui.PostsWithUserListAdapter
+import com.ags.annada.postslist.utils.Event
 import com.ags.annada.postslist.utils.SingleLiveEvent
 import com.example.gabriel.jsonplaceholder.data.PostRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
-import javax.inject.Inject
 
-class PostsWithUsersListViewModel(private val postDao: PostDao, private val userDao: UserDao) : BaseViewModel() {
-    internal val selectItemEvent = SingleLiveEvent<Int>()
+class PostsWithUsersListViewModel @ViewModelInject constructor(
+    private val postRepository: PostRepository
+) : ViewModel() {
 
-    val postWithUsersListAdapter: PostsWithUserListAdapter = PostsWithUserListAdapter(PostListener { postId ->
-        selectItemEvent.value = postId
-    })
+    private val _selectItemEvent = MutableLiveData<Event<Int>>()
+    val selectItemEvent: LiveData<Event<Int>> = _selectItemEvent
 
     val loadingVisibility: MutableLiveData<Int> = MutableLiveData()
     val errorMessage: MutableLiveData<Int> = MutableLiveData()
     val errorClickListener = View.OnClickListener { loadPostsWithUsers() }
 
-    var repository: PostRepository = PostRepository(postDao, userDao)
-    val allPostsWithUsers: LiveData<List<PostWithUser>> = repository.allPostsWithUsers
+    val allPostsWithUsers: LiveData<List<PostWithUser>> = postRepository.allPostsWithUsers
 
     private val viewModelJob = Job()
     private val errorHandler = CoroutineExceptionHandler { _, error ->
@@ -50,7 +44,7 @@ class PostsWithUsersListViewModel(private val postDao: PostDao, private val user
         uiScope.launch {
             onRetrievePostsStart()
 
-            repository.fetchAllPostsAndUsers()
+            postRepository.fetchAllPostsAndUsers()
 
             onRetrievePostsFinish()
         }
@@ -75,5 +69,9 @@ class PostsWithUsersListViewModel(private val postDao: PostDao, private val user
 
     private fun onRetrievePostsError() {
         errorMessage.value = R.string.loading_error
+    }
+
+    fun onClickItem(item: PostWithUser) {
+        _selectItemEvent.value = Event(item.id)
     }
 }

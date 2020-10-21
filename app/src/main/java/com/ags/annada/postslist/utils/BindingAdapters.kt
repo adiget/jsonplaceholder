@@ -7,6 +7,10 @@ import androidx.databinding.BindingAdapter
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.ags.annada.postslist.room.entities.Comment
+import com.ags.annada.postslist.room.entities.PostWithUser
+import com.ags.annada.postslist.ui.comments.CommentsListAdapter
+import com.ags.annada.postslist.ui.postsusers.PostsWithUserListAdapter
 
 @BindingAdapter("adapter")
 fun setAdapter(view: RecyclerView, adapter: RecyclerView.Adapter<*>) {
@@ -31,12 +35,26 @@ fun setMutableText(view: TextView, text: MutableLiveData<String>?) {
     }
 }
 
+@BindingAdapter("app:items")
+fun setPostWithUsers(listView: RecyclerView, items: List<PostWithUser>?) {
+    items?.let {
+        (listView.adapter as PostsWithUserListAdapter).submitList(items)
+    }
+}
+
+@BindingAdapter("app:items")
+fun setComments(listView: RecyclerView, items: List<Comment>?) {
+    items?.let {
+        (listView.adapter as CommentsListAdapter).submitList(items)
+    }
+}
+
 @BindingAdapter("initials")
-fun bindUserInitials(textView: TextView, name: MutableLiveData<String>?) {
-    val firstLetter = name?.value?.first()
-    val space = name?.value?.lastIndexOf(" ")
-    val lastName = space?.plus(1)?.let { name.value?.substring(it) }
-    val lastLetter = lastName?.first()
+fun bindUserInitials(textView: TextView, name: String) {
+    val firstLetter = name.first()
+    val space = name.lastIndexOf(" ")
+    val lastName = space.plus(1).let { name.substring(it) }
+    val lastLetter = lastName.first()
     val sb = StringBuilder()
     val initials = sb.append(firstLetter).append(lastLetter)
 

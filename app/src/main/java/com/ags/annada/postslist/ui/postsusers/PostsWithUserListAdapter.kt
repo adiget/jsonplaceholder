@@ -1,52 +1,60 @@
-package com.ags.annada.postslist.ui
+package com.ags.annada.postslist.ui.postsusers
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.ags.annada.postslist.R
 import com.ags.annada.postslist.databinding.ItemPostUserBinding
 import com.ags.annada.postslist.room.entities.PostWithUser
-import com.annada.android.sample.jsonposts.vm.PostWithUserViewModel
+import com.ags.annada.postslist.viewmodel.postsusers.PostsWithUsersListViewModel
 
-class PostsWithUserListAdapter(private val clickListener: PostListener) : RecyclerView.Adapter<PostsWithUserListAdapter.ViewHolder>() {
-    private lateinit var postsWithUsers: List<PostWithUser>
+class PostsWithUserListAdapter(
+    private val viewModel: PostsWithUsersListViewModel
+) : ListAdapter<PostWithUser, PostsWithUserListAdapter.ViewHolder>(PostsWithUserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding: ItemPostUserBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(parent.context),
-            R.layout.item_post_user,
-            parent,
-            false
-        )
-        return ViewHolder(binding)
+        return ViewHolder.from(parent)
     }
 
-    override fun onBindViewHolder(holder: PostsWithUserListAdapter.ViewHolder, position: Int) {
-        holder.bind(postsWithUsers[position], clickListener)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = getItem(position)
+
+        holder.bind(viewModel, item)
     }
 
-    fun setPostsWithUsers(postsWithUsers: List<PostWithUser>) {
-        this.postsWithUsers = postsWithUsers
-        notifyDataSetChanged()
-    }
+    class ViewHolder private constructor(val binding: ItemPostUserBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    override fun getItemCount(): Int {
-        return if (::postsWithUsers.isInitialized) postsWithUsers.size else 0
-    }
+        fun bind(viewModel: PostsWithUsersListViewModel, item: PostWithUser) {
+            binding.viewmodel = viewModel
+            binding.item = item
+            binding.executePendingBindings()
+        }
 
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ItemPostUserBinding.inflate(layoutInflater, parent, false)
 
-    class ViewHolder(private val binding: ItemPostUserBinding) : RecyclerView.ViewHolder(binding.root) {
-        private val viewModel = PostWithUserViewModel()
-
-        fun bind(postsWithUsers: PostWithUser, clickListener: PostListener) {
-            viewModel.bind(postsWithUsers)
-            binding.viewModel = viewModel
-            binding.clickListener = clickListener
+                return ViewHolder(binding)
+            }
         }
     }
 }
 
-class PostListener(val clickListener: (postId: Int) -> Unit) {
-    fun onClick(id: Int) = clickListener(id)
+/**
+ * Callback for calculating the diff between two non-null items in a list.
+ *
+ * Used by ListAdapter to calculate the minimum number of changes between and old list and a new
+ * list that's been passed to `submitList`.
+ */
+class PostsWithUserDiffCallback : DiffUtil.ItemCallback<PostWithUser>() {
+    override fun areItemsTheSame(oldItem: PostWithUser, newItem: PostWithUser): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentsTheSame(oldItem: PostWithUser, newItem: PostWithUser): Boolean {
+        return oldItem == newItem
+    }
 }

@@ -3,9 +3,7 @@ package com.ags.annada.postslist
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.ags.annada.postslist.room.entities.Comment
-import com.ags.annada.postslist.room.entities.PostWithUser
 import com.ags.annada.postslist.viewmodel.comments.CommentViewModel
-import com.annada.android.sample.jsonposts.vm.PostWithUserViewModel
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert
 import org.junit.Before

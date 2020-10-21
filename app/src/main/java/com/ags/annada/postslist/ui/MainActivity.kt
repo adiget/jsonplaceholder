@@ -1,19 +1,16 @@
 package com.ags.annada.postslist.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.ags.annada.postslist.App
 import com.ags.annada.postslist.R
 import com.ags.annada.postslist.ui.comments.CommentsFragment
-import javax.inject.Inject
+import com.ags.annada.postslist.ui.postsusers.PostsWithUserFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), PostsWithUserFragment.OnPostSelectedListener {
-    @Inject
-    lateinit var app: App
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,5 +50,4 @@ class MainActivity : AppCompatActivity(), PostsWithUserFragment.OnPostSelectedLi
         }
         return super.onOptionsItemSelected(item)
     }
-
 }

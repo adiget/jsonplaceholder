@@ -1,4 +1,4 @@
-package com.annada.android.sample.jsonposts.room
+package com.ags.annada.postslist.room
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson

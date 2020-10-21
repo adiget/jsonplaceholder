@@ -1,8 +1,6 @@
-package com.annada.android.sample.jsonposts.room
+package com.ags.annada.postslist.room
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ags.annada.postslist.room.daos.CommentDao
@@ -19,24 +17,4 @@ abstract class PostDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
     abstract fun commentDao(): CommentDao
     abstract fun userDao(): UserDao
-
-    companion object {
-        private var INSTANCE: PostDatabase? = null
-
-        fun getInstance(context: Context): PostDatabase? {
-            if (INSTANCE == null) {
-                synchronized(PostDatabase::class) {
-                    INSTANCE = Room.databaseBuilder(
-                        context.applicationContext,
-                        PostDatabase::class.java, "post.db"
-                    ).build()
-                }
-            }
-            return INSTANCE
-        }
-
-        fun destroyInstance() {
-            INSTANCE = null
-        }
-    }
 }
