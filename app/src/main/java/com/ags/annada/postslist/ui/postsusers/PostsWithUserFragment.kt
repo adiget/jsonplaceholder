@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.ags.annada.postslist.R
 import com.ags.annada.postslist.databinding.PostsUsersFragmentBinding
 import com.ags.annada.postslist.utils.EventObserver
@@ -19,21 +20,11 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class PostsWithUserFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = PostsWithUserFragment()
-    }
-
     private val viewModel by viewModels<PostsWithUsersListViewModel>()
     private lateinit var adapter: PostsWithUserListAdapter
 
-    internal lateinit var callback: OnPostSelectedListener
-
     private lateinit var binding: PostsUsersFragmentBinding
     private var errorSnackbar: Snackbar? = null
-
-    fun setOnPostSelectedListener(callback: OnPostSelectedListener) {
-        this.callback = callback
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,14 +42,11 @@ class PostsWithUserFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        // Set the lifecycle owner to the lifecycle of the view
         binding.lifecycleOwner = this.viewLifecycleOwner
 
         viewModel.errorMessage.observe(viewLifecycleOwner, Observer { errorMessage ->
             if (errorMessage != null) showError(errorMessage) else hideError()
         })
-
-
 
         setupNavigation()
         setupAdapter()
@@ -87,12 +75,14 @@ class PostsWithUserFragment : Fragment() {
 
     private fun setupNavigation() {
         viewModel.selectItemEvent.observe(viewLifecycleOwner, EventObserver {
-            Log.d("SELECTED ID", "selected=${it}");
-            callback.onPostSelected(it)
+            Log.d("SELECTED ID", "selected=${it}")
+            openComments(it)
         })
     }
 
-    interface OnPostSelectedListener {
-        fun onPostSelected(postId: Int)
+    private fun openComments(postId: Int) {
+        val action =
+            PostsWithUserFragmentDirections.actionPostWithUserFragmentToCommentsFragment(postId)
+        findNavController().navigate(action)
     }
 }

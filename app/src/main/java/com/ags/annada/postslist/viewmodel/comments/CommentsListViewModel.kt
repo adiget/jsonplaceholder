@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel
 import com.ags.annada.postslist.R
 import com.ags.annada.postslist.repository.CommentRepository
 import com.ags.annada.postslist.room.entities.Comment
-import com.ags.annada.postslist.ui.comments.CommentsFragment.Companion.ARG_POST_ID
 import kotlinx.coroutines.*
 
 class CommentsListViewModel @ViewModelInject constructor(
@@ -23,7 +22,7 @@ class CommentsListViewModel @ViewModelInject constructor(
     val errorClickListener = View.OnClickListener { loadComments() }
 
     val allComments: LiveData<List<Comment>> =
-        repository.getCommentWithId(savedStateHandle.get<Int>(ARG_POST_ID) ?: 0)
+        repository.getCommentWithId(savedStateHandle.get<Int>("postId") ?: 0)
     private val viewModelJob = Job()
 
 

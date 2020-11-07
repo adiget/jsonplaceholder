@@ -1,53 +1,30 @@
 package com.ags.annada.postslist.ui
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.appcompat.widget.Toolbar
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.ags.annada.postslist.R
-import com.ags.annada.postslist.ui.comments.CommentsFragment
-import com.ags.annada.postslist.ui.postsusers.PostsWithUserFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), PostsWithUserFragment.OnPostSelectedListener {
+class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(findViewById(R.id.toolbar))
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, PostsWithUserFragment.newInstance())
-                .commitNow()
-        }
-    }
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
 
-    override fun onAttachFragment(fragment: Fragment) {
-        if (fragment is PostsWithUserFragment) {
-            fragment.setOnPostSelectedListener(this)
-        }
-    }
-
-    override fun onPostSelected(postId: Int) {
-        val newFragment = CommentsFragment()
-        val args = Bundle()
-        args.putInt(CommentsFragment.ARG_POST_ID, postId)
-        newFragment.arguments = args
-
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.container, newFragment)
-        transaction.addToBackStack(null)
-
-        transaction.commit()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                supportActionBar?.setDisplayHomeAsUpEnabled(false)
-                onBackPressed()
-            }
-        }
-        return super.onOptionsItemSelected(item)
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        findViewById<Toolbar>(R.id.toolbar).setupWithNavController(
+            navController,
+            appBarConfiguration
+        )
     }
 }
